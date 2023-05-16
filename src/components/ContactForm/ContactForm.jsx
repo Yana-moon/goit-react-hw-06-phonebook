@@ -1,19 +1,20 @@
-import PropTypes from 'prop-types';
+import { nanoid } from '@reduxjs/toolkit';
+//import PropTypes from 'prop-types';
 //import { Component } from 'react';
 import { useState } from 'react';
 
+import { useDispatch, useSelector } from 'react-redux';
+import { addContacts } from 'redux/contactsSlice';
+import { getContacts } from 'redux/selectors';
+
 import { ButtonForm, Form, InputForm, LabelForm } from './ContactForm.styled';
 
-//export class ContactForm extends Component {
-  //state = {
-    //name: '',
-    //number: '',
-  //};
 
   export const ContactForm = ({ onClickSubmit }) => {
     const [name, setName] = useState('');
     const [number, setNumber] = useState('');
-
+    const contacts = useSelector(getContacts);
+    const dispatch = useDispatch();
 
     //Прибираємо this, ми позакласом, тому методів НЕМАЄ!, тому або function or const 
 
@@ -24,9 +25,27 @@ import { ButtonForm, Form, InputForm, LabelForm } from './ContactForm.styled';
     else if (name === 'number') setNumber(value);
   };
 
+  const addNewContact = () => {
+    let newContact = {
+      number,
+      name,
+      id: nanoid(),
+    };
+
+    const newContactName = contacts.find(
+      contact => contact.name.toLowerCase() === newContact.name.toLowerCase()
+    );
+
+    if (newContactName) {
+      return alert(`${newContact.name} is already in contacts.`);
+    } else {
+      dispatch(addContacts(newContact));
+    }
+  };
+
   const onFormSubmit = e => {
     e.preventDefault();
-    onClickSubmit(name, number);
+    addNewContact();
     setName('');
     setNumber('');
   };
@@ -65,6 +84,3 @@ import { ButtonForm, Form, InputForm, LabelForm } from './ContactForm.styled';
   }
 
 
-ContactForm.propTypes = {
-  onClickSubmit: PropTypes.func.isRequired,
-};
